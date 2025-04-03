@@ -1,0 +1,47 @@
+---
+- name: Deploy Java Application to Second Server
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install necessary packages
+      apt:
+        name: 
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create application directory
+      file:
+        path: /home/ubuntu/java-login-app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy Java application files to the second server
+      synchronize:
+        src: /home/ubuntu/java-login-app/
+        dest: /home/ubuntu/java-login-app/
+      delegate_to: localhost
+
+    - name: Change ownership of application directory
+      file:
+        path: /home/ubuntu/java-login-app
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
+
+    - name: Run Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/ubuntu/java-login-app/
+
