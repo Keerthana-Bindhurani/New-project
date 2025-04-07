@@ -1,0 +1,27 @@
+name: CI/CD Pipeline for Java Login App
+
+on:
+  push:
+    branches:
+      - main  # Trigger only on main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to EC2
+        run: |
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ ubuntu@3.89.97.204:/home/ubuntu/java-login-app
+
+      - name: Run Ansible playbook
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@3.89.97.204"cd /home/ubuntu/java-login-app/ansible && sudo ansible-playbook -i hosts deploy.yml"
