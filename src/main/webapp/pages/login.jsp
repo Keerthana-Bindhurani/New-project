@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Username</td>
+                        <td>Name</td>
                         <td><input type="text" name="userName" value="" /></td>
                     </tr>
                     <tr>
