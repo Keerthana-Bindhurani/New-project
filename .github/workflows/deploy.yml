@@ -1,33 +1,32 @@
-name: CI/CD Deployment to EC2
+name: Deploy Java Application
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger this workflow on changes to the 'main' branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up SSH key
-      run: |
-        echo "${{ secrets.PRIVATE_KEY }}" > newkey.pem
-        chmod 600 newkey.pem
+      # Step 2: Set up SSH key
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.PRIVATE_KEY }}" > newkey.pem
+          sed -i 's/\r//' newkey.pem  # Remove any carriage return issues
+          chmod 600 newkey.pem
 
-    - name: Deploy to EC2
-      run: |
-        ssh -i newkey.pem -o StrictHostKeyChecking=no ubuntu@44.220.156.184 << 'EOF'
-          echo "🔄 Pulling latest changes"
-          cd ~/New-project
-          git pull origin main
-
-          echo "🔁 Restarting Docker containers"
-          sudo docker-compose down
-          sudo docker-compose up -d --build
-
-          echo "✅ Deployment finished"
-        EOF
+      # Step 3: Deploy to EC2
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i newkey.pem ubuntu@44.220.156.184 << 'EOF'
+            cd ~/New-project
+            git pull origin main  # Pull the latest changes from GitHub
+            sudo docker-compose down  # Stop the running containers
+            sudo docker-compose up -d --build  # Build and start the containers in detached mode
+          EOF
