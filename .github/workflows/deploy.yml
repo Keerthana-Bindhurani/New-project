@@ -16,6 +16,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          # Decode the SSH private key stored in GitHub Secrets
           echo "$EC2_SSH_KEY" | base64 -d > ~/.ssh/newkey.pem
           chmod 600 ~/.ssh/newkey.pem
 
