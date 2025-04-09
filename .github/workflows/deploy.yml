@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Java Login App to EC2
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +19,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Copy project files to EC2 instance
+      - name: Ensure target folder exists and copy files
         run: |
-          scp -o StrictHostKeyChecking=no -r . ubuntu@3.93.200.139:/home/ubuntu/java-login-app/
+          ssh -o StrictHostKeyChecking=no ubuntu@44.220.156.184 "mkdir -p /home/ubuntu/java-login-app"
+          scp -o StrictHostKeyChecking=no -r . ubuntu@44.220.156.184:/home/ubuntu/java-login-app/
 
       - name: Run Ansible playbook on EC2 instance
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@3.93.200.139 << 'EOF'
+          ssh -A -o StrictHostKeyChecking=no ubuntu@44.220.156.184 << 'EOF'
             cd /home/ubuntu/java-login-app/ansible
             ansible-playbook -i hosts deploy.yml
           EOF
