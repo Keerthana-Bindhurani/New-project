@@ -21,16 +21,16 @@ jobs:
           # Decode the SSH private key stored in GitHub Secrets
           echo "$EC2_SSH_KEY" | base64 -d > ~/.ssh/newkey.pem
           chmod 600 ~/.ssh/newkey.pem  # Set proper permissions
-
-      # Add EC2 to known hosts
-      - name: Add EC2 to known hosts
-        run: |
-          mkdir -p ~/.ssh
+          # Debug: Check the contents of the SSH key
+          cat ~/.ssh/newkey.pem
+          # Add EC2 to known hosts
           ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts
 
       # Deploy to EC2
       - name: Deploy to EC2
         run: |
+          # Debug: Show the SSH connection command being executed
+          echo "Running SSH command..."
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@44.220.156.184 << 'EOF'
             # Navigate to the project directory
             cd /home/ubuntu/java-login-app  # Correct path based on your tree structure
