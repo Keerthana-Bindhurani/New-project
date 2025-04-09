@@ -1,29 +1,29 @@
-name: CI/CD Pipeline - Java Login App with Docker
+name: Deploy Java App to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
-    name: Auto-deploy on EC2
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: SSH into EC2 and deploy updated app
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.HOST }}
+          USER: ubuntu
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@44.220.156.184 << 'EOF'
-            cd /home/ubuntu/java-login-app
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            cd /home/ubuntu/your-app-directory
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
+            sudo docker-compose down
+            sudo docker-compose up -d --build
           EOF
