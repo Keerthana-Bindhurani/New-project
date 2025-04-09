@@ -14,19 +14,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up SSH key
+      # Step 2: Set up the SSH key for deployment
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.PRIVATE_KEY }}" > newkey.pem
-          sed -i 's/\r//' newkey.pem  # Remove any carriage return issues
-          chmod 600 newkey.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > newkey.pem  # Create the private key file
+          chmod 600 newkey.pem  # Set the correct permissions for the private key
+          sed -i 's/\r//' newkey.pem  # Remove any carriage return characters if on Windows
 
-      # Step 3: Deploy to EC2
+      # Step 3: Add SSH Known Hosts to avoid prompt
+      - name: Add SSH known hosts
+        run: |
+          ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts  # Add EC2 to known hosts
+
+      # Step 4: Deploy to EC2 via SSH
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i newkey.pem ubuntu@44.220.156.184 << 'EOF'
+            # Navigate to your project directory (make sure the path is correct)
             cd ~/New-project
-            git pull origin main  # Pull the latest changes from GitHub
-            sudo docker-compose down  # Stop the running containers
-            sudo docker-compose up -d --build  # Build and start the containers in detached mode
+            # Pull the latest changes from the GitHub repository
+            git pull origin main
+            # Stop the current Docker containers
+            sudo docker-compose down
+            # Rebuild and start the containers
+            sudo docker-compose up -d --build
           EOF
