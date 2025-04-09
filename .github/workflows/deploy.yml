@@ -21,9 +21,10 @@ jobs:
           chmod 600 newkey.pem  # Set the correct permissions for the private key
           sed -i 's/\r//' newkey.pem  # Remove any carriage return characters if on Windows
 
-      # Step 3: Add SSH Known Hosts to avoid prompt
+      # Step 3: Create .ssh directory if it doesn't exist and add EC2 to known hosts
       - name: Add SSH known hosts
         run: |
+          mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
           ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts  # Add EC2 to known hosts
 
       # Step 4: Deploy to EC2 via SSH
