@@ -1,4 +1,4 @@
-name: Deploy Java Application
+name: Deploy Java Login App
 
 on:
   push:
@@ -10,35 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # Set up SSH key
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          # Decode the SSH private key stored in GitHub Secrets
-          echo "$EC2_SSH_KEY" | base64 -d > ~/.ssh/newkey.pem
-          chmod 600 ~/.ssh/newkey.pem  # Set proper permissions
-          # Debug: Show the SSH private key contents (sanitized for debugging)
-          cat ~/.ssh/newkey.pem
-          # Add EC2 to known hosts
-          ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/newkey.pem
+        chmod 600 ~/.ssh/newkey.pem
 
-      # Deploy to EC2
-      - name: Deploy to EC2
-        run: |
-          # Debug: Show SSH connection command
-          echo "Running SSH command..."
-          # Run the actual SSH connection
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@44.220.156.184 << 'EOF'
-            # Navigate to the project directory
-            cd /home/ubuntu/java-login-app
-            # Pull the latest changes from the GitHub repository
-            git pull origin main
-            # Stop the current Docker containers
-            sudo docker-compose down
-            # Rebuild and start the containers
-            sudo docker-compose up -d --build
-          EOF
+    - name: Add SSH known host
+      run: |
+        ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts
+
+    - name: Deploy to EC2
+      run: |
+        echo "Running SSH command..."
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@44.220.156.184 << 'EOF'
+          # Navigate to the project directory
+          cd /home/ubuntu/java-login-app
+          # Pull the latest changes from the GitHub repository
+          git pull origin main
+          # Stop the current Docker containers
+          sudo docker-compose down
+          # Rebuild and start the containers
+          sudo docker-compose up -d --build
+        EOF
+      shell: /usr/bin/bash -e {0}
