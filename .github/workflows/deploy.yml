@@ -3,36 +3,32 @@ name: Deploy Java Application
 on:
   push:
     branches:
-      - main  # Trigger this workflow on changes to the 'main' branch
+      - main  # Trigger deployment on pushing to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up the SSH key for deployment
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > newkey.pem  # Create the private key file
-          chmod 600 newkey.pem  # Set the correct permissions for the private key
-          sed -i 's/\r//' newkey.pem  # Remove any carriage return characters if on Windows
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_KEY" | base64 -d > ~/.ssh/newkey.pem
+          chmod 600 ~/.ssh/newkey.pem
 
-      # Step 3: Create .ssh directory if it doesn't exist and add EC2 to known hosts
-      - name: Add SSH known hosts
+      - name: Add EC2 to known hosts
         run: |
-          mkdir -p ~/.ssh  # Create the .ssh directory if it doesn't exist
-          ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts  # Add EC2 to known hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts
 
-      # Step 4: Deploy to EC2 via SSH
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i newkey.pem ubuntu@44.220.156.184 << 'EOF'
-            # Navigate to your project directory (make sure the path is correct)
-            cd ~/New-project
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@44.220.156.184 << 'EOF'
+            # Navigate to the project directory
+            cd /home/ubuntu/java-login-app  # Correct path based on your tree structure
             # Pull the latest changes from the GitHub repository
             git pull origin main
             # Stop the current Docker containers
