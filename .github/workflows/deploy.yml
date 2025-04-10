@@ -20,6 +20,7 @@ jobs:
 
     - name: Add SSH host to known_hosts
       run: |
+        mkdir -p ~/.ssh
         ssh-keyscan -H 54.82.17.66 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2
