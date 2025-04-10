@@ -24,7 +24,7 @@ jobs:
 
     - name: Deploy to EC2
       run: |
-        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@54.82.17.66 << 'EOF'
+        ssh -i newkey.pem -o StrictHostKeyChecking=no ubuntu@54.82.17.66 << 'EOF'
           cd /home/ubuntu/java-login-app
           git pull origin main
           sudo docker-compose down
