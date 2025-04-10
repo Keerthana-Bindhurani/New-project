@@ -1,4 +1,4 @@
-name: Deploy Java Login App
+name: deploy
 
 on:
   push:
@@ -11,29 +11,22 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up SSH key
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/newkey.pem
-        chmod 600 ~/.ssh/newkey.pem
+        echo "$EC2_SSH_KEY" > key.pem
+        chmod 600 key.pem
 
-    - name: Add SSH known host
+    - name: Add SSH host to known_hosts
       run: |
         ssh-keyscan -H 54.82.17.66 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2
       run: |
-        echo "Running SSH command..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@54.82.17.66 << 'EOF'
-          # Navigate to the project directory
+        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@54.82.17.66 << 'EOF'
           cd /home/ubuntu/java-login-app
-          # Pull the latest changes from the GitHub repository
           git pull origin main
-          # Stop the current Docker containers
           sudo docker-compose down
-          # Rebuild and start the containers
           sudo docker-compose up -d --build
         EOF
-      shell: /usr/bin/bash -e {0}
