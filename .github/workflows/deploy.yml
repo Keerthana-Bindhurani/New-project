@@ -15,7 +15,8 @@ jobs:
 
     - name: Set up SSH key
       run: |
-        echo "$EC2_SSH_KEY" > newkey.pem
+        mkdir -p ~/.ssh
+        echo "$EC2_SSH_KEY" | tr -d '\r' > newkey.pem
         chmod 600 newkey.pem
 
     - name: Add SSH host to known_hosts
@@ -31,3 +32,4 @@ jobs:
           sudo docker-compose down
           sudo docker-compose up -d --build
         EOF
+
