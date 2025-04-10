@@ -21,12 +21,12 @@ jobs:
 
     - name: Add SSH known host
       run: |
-        ssh-keyscan -H 44.220.156.184 >> ~/.ssh/known_hosts
+        ssh-keyscan -H 54.82.17.66 >> ~/.ssh/known_hosts
 
     - name: Deploy to EC2
       run: |
         echo "Running SSH command..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@44.220.156.184 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/newkey.pem ubuntu@54.82.17.66 << 'EOF'
           # Navigate to the project directory
           cd /home/ubuntu/java-login-app
           # Pull the latest changes from the GitHub repository
