@@ -15,8 +15,8 @@ jobs:
 
     - name: Set up SSH key
       run: |
-        echo "$EC2_SSH_KEY" > key.pem
-        chmod 600 key.pem
+        echo "$EC2_SSH_KEY" > newkey.pem
+        chmod 600 newkey.pem
 
     - name: Add SSH host to known_hosts
       run: |
