@@ -13,10 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up SSH key
+    - name: Decode and write SSH key
       run: |
         mkdir -p ~/.ssh
-        echo "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/newkey.pem
+        echo "$EC2_SSH_KEY_BASE64" | base64 -d > ~/.ssh/newkey.pem
         chmod 600 ~/.ssh/newkey.pem
 
     - name: Add EC2 to known hosts
@@ -31,5 +31,3 @@ jobs:
           sudo docker-compose down
           sudo docker-compose up -d --build
         EOF
-
-
