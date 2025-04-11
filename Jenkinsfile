@@ -1,11 +1,6 @@
 pipeline {
     agent any
     stages {
-        stage('Pull from GitHub') {
-            steps {
-                git credentialsId: 'your-credentials-id', url: 'https://github.com/Keerthana-Bindhurani/New-project.git'
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t java-login-app .'
