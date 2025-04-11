@@ -10,7 +10,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t java-login-app .'
+                dir('java-login-app') { // adjust path if your Dockerfile is deeper
+                    sh 'docker build -t java-login-app .'
+                }
             }
         }
 
