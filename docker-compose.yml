@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./app
+    container_name: tomcat_app
+    ports:
+      - "8080:8080"  # Map Tomcat's 8080 port to the host machine
+    restart: always
+
+  nginx:
+    build: ./nginx
+    container_name: nginx_proxy
+    ports:
+      - "80:80"  # Expose Nginx on port 80
+    depends_on:
+      - app  # Ensure Nginx starts after the Tomcat container
+    restart: always
